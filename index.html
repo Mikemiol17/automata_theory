@@ -1,1 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automata Theory — Visual Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0e0f13;
+  --surface:  #13151b;
+  --card:     #181b24;
+  --border:   #252a38;
+  --amber:    #f5a623;
+  --amber2:   #ffd080;
+  --cyan:     #3dd6f5;
+  --green:    #4effa0;
+  --pink:     #ff6b9d;
+  --violet:   #a78bfa;
+  --red:      #ff5757;
+  --text:     #c8d0e0;
+  --muted:    #4a5270;
+  --white:    #eef2ff;
+}
 
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'IBM Plex Mono',monospace;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* grid paper bg */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(245,166,35,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(245,166,35,.03) 1px,transparent 1px);
+  background-size:32px 32px;
+  z-index:0;
+}
+
+/* ── HEADER ── */
+.hdr{
+  position:relative;z-index:10;
+  padding:40px 24px 24px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-end;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;
+  background:linear-gradient(180deg,#0a0b0f 0%,transparent 100%);
+}
+.hdr-left .kicker{
+  font-size:.62rem;letter-spacing:.4em;color:var(--muted);
+  text-transform:uppercase;margin-bottom:8px;
+}
+.hdr-left h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.8rem,5vw,3rem);
+  font-weight:900;color:var(--white);
+  line-height:1;
+}
+.hdr-left h1 em{
+  font-style:italic;color:var(--amber);
+  text-shadow:0 0 40px rgba(245,166,35,.4);
+}
+.hdr-right{
+  font-size:.65rem;color:var(--muted);line-height:1.8;
+  text-align:right;
+}
+
+/* ── TABS ── */
+.tabs{
+  position:sticky;top:0;z-index:100;
+  background:rgba(14,15,19,.96);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  display:flex;overflow-x:auto;
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex-shrink:0;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:.72rem;letter-spacing:.12em;
+  padding:16px 24px;
+  background:none;border:none;
+  border-bottom:2px solid transparent;
+  color:var(--muted);cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+}
+.tab:hover{color:var(--white)}
+.tab.on{color:var(--amber);border-bottom-color:var(--amber);}
+
+/* ── PANEL ── */
+.panel{display:none;position:relative;z-index:1}
+.panel.on{display:block}
+
+/* ── WRAPPERS ── */
+.wrap{max-width:1320px;margin:0 auto;padding:28px 20px 48px}
+.two-col{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+@media(max-width:960px){.two-col{grid-template-columns:1fr}.three-col{grid-template-columns:1fr}}
+
+/* ── SECTION INTRO ── */
+.sec-intro{margin-bottom:22px}
+.sec-intro .tag{
+  font-size:.6rem;letter-spacing:.35em;color:var(--amber);
+  text-transform:uppercase;margin-bottom:6px;
+}
+.sec-intro h2{
+  font-family:'Playfair Display',serif;
+  font-size:1.7rem;font-weight:700;
+  color:var(--white);margin-bottom:8px;
+}
+.sec-intro p{font-size:.78rem;color:var(--muted);line-height:1.7;max-width:680px}
+
+/* ── DIAGRAM BOX ── */
+.dbox{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:6px;overflow:hidden;
+  margin-bottom:20px;
+}
+.dbox-title{
+  font-size:.62rem;letter-spacing:.25em;
+  padding:10px 16px;border-bottom:1px solid var(--border);
+  color:var(--amber);text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;
+}
+.dbox-title .pip{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--amber);
+  box-shadow:0 0 8px var(--amber);
+}
+.dbox svg{display:block;width:100%;height:auto}
+
+/* ── CARDS ── */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:5px;padding:14px 16px;
+  border-left:3px solid var(--cl,var(--amber));
+  transition:background .2s;
+}
+.card:hover{background:#1d2130}
+.card h4{
+  font-size:.62rem;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--cl,var(--amber));
+  margin-bottom:6px;
+}
+.card p{font-size:.72rem;color:#6a7590;line-height:1.65}
+.card .badge{
+  display:inline-block;margin-top:6px;
+  background:rgba(0,0,0,.4);
+  border:1px solid var(--cl,var(--amber));
+  border-radius:3px;padding:2px 8px;
+  font-size:.58rem;color:var(--cl,var(--amber));
+  letter-spacing:.08em;
+}
+.card-stack{display:flex;flex-direction:column;gap:10px}
+
+/* ── INTERACTIVE DFA ── */
+#dfa-sim{padding:18px}
+.sim-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.sim-label{font-size:.62rem;letter-spacing:.15em;color:var(--muted);min-width:80px}
+.sim-input{
+  background:#0a0b0f;border:1px solid var(--border);
+  border-radius:4px;padding:8px 14px;
+  font-family:'IBM Plex Mono',monospace;font-size:.85rem;
+  color:var(--white);outline:none;min-width:200px;
+  transition:border-color .2s;
+}
+.sim-input:focus{border-color:var(--amber)}
+.sim-btn{
+  background:none;border:1px solid var(--amber);
+  border-radius:4px;padding:8px 18px;
+  font-family:'IBM Plex Mono',monospace;font-size:.72rem;
+  letter-spacing:.12em;color:var(--amber);
+  cursor:pointer;transition:all .2s;
+}
+.sim-btn:hover{background:var(--amber);color:#0e0f13}
+.sim-tape{
+  display:flex;gap:4px;padding:10px 0;
+  font-size:.85rem;flex-wrap:wrap;
+}
+.sym{
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  background:#0a0b0f;border:1px solid var(--border);
+  border-radius:3px;color:var(--muted);
+  transition:all .3s;font-weight:600;
+}
+.sym.active{
+  background:rgba(245,166,35,.15);
+  border-color:var(--amber);color:var(--amber);
+  box-shadow:0 0 12px rgba(245,166,35,.3);
+}
+.sym.accepted{
+  background:rgba(78,255,160,.1);
+  border-color:var(--green);color:var(--green);
+}
+.sym.rejected{
+  background:rgba(255,87,87,.1);
+  border-color:var(--red);color:var(--red);
+}
+#dfa-result{
+  font-size:.75rem;padding:8px 14px;border-radius:4px;
+  border:1px solid var(--border);display:inline-block;
+  margin-top:4px;letter-spacing:.1em;
+}
+#dfa-result.acc{border-color:var(--green);color:var(--green);background:rgba(78,255,160,.07)}
+#dfa-result.rej{border-color:var(--red);color:var(--red);background:rgba(255,87,87,.07)}
+
+/* ── TM TAPE ── */
+.tm-tape-wrap{padding:16px 18px}
+.tm-cells{display:flex;gap:3px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:thin}
+.tm-cell{
+  min-width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+  background:#0a0b0f;border:1px solid var(--border);
+  border-radius:3px;font-size:.9rem;font-weight:700;
+  color:var(--muted);transition:all .25s;flex-shrink:0;
+}
+.tm-cell.head{
+  background:rgba(167,139,250,.15);
+  border-color:var(--violet);color:var(--violet);
+  box-shadow:0 0 14px rgba(167,139,250,.3);
+}
+.tm-cell.written{
+  background:rgba(61,214,245,.1);
+  border-color:var(--cyan);color:var(--cyan);
+}
+.tm-head-marker{
+  text-align:center;font-size:.65rem;
+  color:var(--violet);margin-top:4px;letter-spacing:.1em;
+}
+.tm-controls{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.tm-state-badge{
+  background:rgba(167,139,250,.12);
+  border:1px solid var(--violet);border-radius:4px;
+  padding:6px 14px;font-size:.7rem;color:var(--violet);
+  letter-spacing:.1em;
+}
+.tm-log{
+  margin-top:10px;font-size:.65rem;color:var(--muted);
+  max-height:80px;overflow-y:auto;line-height:1.8;
+  scrollbar-width:thin;
+}
+
+/* ── CHOMSKY RINGS ── */
+.chomsky-wrap{position:relative;width:100%;padding-bottom:80%;overflow:hidden}
+.chomsky-wrap svg{position:absolute;inset:0;width:100%;height:100%}
+
+/* ── ANIM ── */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes traveldot{0%{stroke-dashoffset:0}100%{stroke-dashoffset:-600}}
+@keyframes stateon{0%{r:22}50%{r:26}100%{r:22}}
+@keyframes fadeup{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.panel.on .dbox{animation:fadeup .35s ease both}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="kicker">Computer Science — Formal Languages</div>
+    <h1>Automata <em>Theory</em></h1>
+  </div>
+  <div class="hdr-right">
+    Finite Automata · Pushdown Automata<br>
+    Turing Machines · Chomsky Hierarchy<br>
+    Regular Expressions · Context-Free Grammars
+  </div>
+</div>
+
+<nav class="tabs">
+  <button class="tab on"    onclick="show('overview',this)">① Overview</button>
+  <button class="tab"       onclick="show('dfa',this)">② DFA / NFA</button>
+  <button class="tab"       onclick="show('regex',this)">③ Regular Expressions</button>
+  <button class="tab"       onclick="show('pda',this)">④ Pushdown Automata</button>
+  <button class="tab"       onclick="show('tm',this)">⑤ Turing Machine</button>
+  <button class="tab"       onclick="show('hierarchy',this)">⑥ Chomsky Hierarchy</button>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     PANEL 1 — OVERVIEW
+═══════════════════════════════════════ -->
+<div id="p-overview" class="panel on">
+<div class="wrap">
+
+  <div class="sec-intro">
+    <div class="tag">Foundation</div>
+    <h2>What is Automata Theory?</h2>
+    <p>Automata theory studies abstract machines (automata) and the computational problems they can solve. It forms the mathematical backbone of compilers, programming languages, AI, cryptography, and hardware design — asking: <em>"What can a machine compute, and what are its limits?"</em></p>
+  </div>
+
+  <!-- Big picture map -->
+  <div class="dbox">
+    <div class="dbox-title"><div class="pip"></div>THE COMPUTATIONAL POWER LADDER — FROM WEAKEST TO STRONGEST</div>
+    <svg viewBox="0 0 860 340" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10z" fill="#f5a623" opacity=".8"/>
+        </marker>
+        <filter id="glo"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="glo2"><feGaussianBlur stdDeviation="9" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <rect width="860" height="340" fill="#0e1016"/>
+
+      <!-- Levels as horizontal bands -->
+      <!-- Level 1: FA -->
+      <rect x="20" y="240" width="820" height="80" rx="5" fill="rgba(245,166,35,.06)" stroke="rgba(245,166,35,.25)" stroke-width="1"/>
+      <!-- Level 2: PDA -->
+      <rect x="20" y="155" width="820" height="78" rx="5" fill="rgba(61,214,245,.06)" stroke="rgba(61,214,245,.25)" stroke-width="1"/>
+      <!-- Level 3: LBA -->
+      <rect x="20" y="78" width="820" height="70" rx="5" fill="rgba(78,255,160,.06)" stroke="rgba(78,255,160,.25)" stroke-width="1"/>
+      <!-- Level 4: TM -->
+      <rect x="20" y="12" width="820" height="60" rx="5" fill="rgba(167,139,250,.08)" stroke="rgba(167,139,250,.3)" stroke-width="1"/>
+
+      <!-- Level labels left -->
+      <text x="32" y="270" font-family="IBM Plex Mono" font-size="9" fill="rgba(245,166,35,.5)" letter-spacing="1">LEVEL 1</text>
+      <text x="32" y="185" font-family="IBM Plex Mono" font-size="9" fill="rgba(61,214,245,.5)" letter-spacing="1">LEVEL 2</text>
+      <text x="32" y="103" font-family="IBM Plex Mono" font-size="9" fill="rgba(78,255,160,.5)" letter-spacing="1">LEVEL 3</text>
+      <text x="32" y="36"  font-family="IBM Plex Mono" font-size="9" fill="rgba(167,139,250,.5)" letter-spacing="1">LEVEL 4</text>
+
+      <!-- Up arrows between levels -->
+      <line x1="430" y1="238" x2="430" y2="236" stroke="none"/>
+      <path d="M430,236 L430,156" fill="none" stroke="#f5a623" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)" opacity=".5"/>
+      <path d="M430,153 L430,82" fill="none" stroke="#3dd6f5" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)" opacity=".5"/>
+      <path d="M430,76  L430,14" fill="none" stroke="#4effa0" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arr)" opacity=".5"/>
+      <text x="440" y="202" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">more power</text>
+
+      <!-- LEVEL 1 content: FA, DFA, NFA, ε-NFA -->
+      <g filter="url(#glo)">
+        <!-- DFA node -->
+        <circle cx="160" cy="284" r="28" fill="rgba(245,166,35,.1)" stroke="#f5a623" stroke-width="1.8"/>
+        <text x="160" y="281" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="700" fill="#f5a623">DFA</text>
+        <text x="160" y="293" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#f5a62380">Deterministic</text>
+        <!-- NFA node -->
+        <circle cx="280" cy="284" r="28" fill="rgba(245,166,35,.07)" stroke="rgba(245,166,35,.5)" stroke-width="1.5"/>
+        <text x="280" y="281" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="700" fill="#ffd080">NFA</text>
+        <text x="280" y="293" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#ffd08080">Nondeterministic</text>
+        <!-- ε-NFA node -->
+        <circle cx="400" cy="284" r="28" fill="rgba(245,166,35,.05)" stroke="rgba(245,166,35,.4)" stroke-width="1.2"/>
+        <text x="400" y="281" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-weight="700" fill="#ffd080">ε-NFA</text>
+        <text x="400" y="293" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#ffd08060">Epsilon moves</text>
+        <!-- Equal signs -->
+        <text x="228" y="288" text-anchor="middle" font-family="IBM Plex Mono" font-size="14" fill="#4a5270">=</text>
+        <text x="344" y="288" text-anchor="middle" font-family="IBM Plex Mono" font-size="14" fill="#4a5270">=</text>
+      </g>
+
+      <!-- Regex -->
+      <rect x="476" y="256" width="110" height="56" rx="5" fill="rgba(245,166,35,.06)" stroke="rgba(245,166,35,.3)" stroke-width="1.2"/>
+      <text x="531" y="279" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-weight="700" fill="#f5a623">REGEX</text>
+      <text x="531" y="291" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4a5270">Regular</text>
+      <text x="531" y="301" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4a5270">Expressions</text>
+      <text x="463" y="288" font-family="IBM Plex Mono" font-size="11" fill="#4a5270">⟷</text>
+
+      <!-- Regular Languages label -->
+      <rect x="610" y="256" width="216" height="56" rx="5" fill="rgba(0,0,0,.3)"/>
+      <text x="718" y="274" text-anchor="middle" font-family="Playfair Display" font-size="12" font-style="italic" fill="#f5a623">Regular Languages</text>
+      <text x="718" y="290" text-anchor="middle" font-family="IBM Plex Mono" font-size="7.5" fill="#4a5270">Pattern matching · Lexers · grep</text>
+      <text x="718" y="304" text-anchor="middle" font-family="IBM Plex Mono" font-size="7.5" fill="#4a5270">a*b · (ab)+ · [0-9]+ ...</text>
+
+      <!-- LEVEL 2 content: PDA, CFG -->
+      <circle cx="160" cy="195" r="28" fill="rgba(61,214,245,.08)" stroke="#3dd6f5" stroke-width="1.8" filter="url(#glo)"/>
+      <text x="160" y="192" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="700" fill="#3dd6f5">PDA</text>
+      <text x="160" y="204" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#3dd6f580">Push-down</text>
+
+      <rect x="218" y="170" width="100" height="50" rx="5" fill="rgba(61,214,245,.06)" stroke="rgba(61,214,245,.3)" stroke-width="1.2"/>
+      <text x="268" y="191" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-weight="700" fill="#3dd6f5">CFG</text>
+      <text x="268" y="203" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4a5270">Context-Free</text>
+      <text x="268" y="213" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4a5270">Grammar</text>
+      <text x="206" y="199" font-family="IBM Plex Mono" font-size="11" fill="#4a5270">⟷</text>
+
+      <rect x="610" y="168" width="216" height="52" rx="5" fill="rgba(0,0,0,.3)"/>
+      <text x="718" y="187" text-anchor="middle" font-family="Playfair Display" font-size="12" font-style="italic" fill="#3dd6f5">Context-Free Languages</text>
+      <text x="718" y="203" text-anchor="middle" font-family="IBM Plex Mono" font-size="7.5" fill="#4a5270">Programming language syntax · Parsing</text>
+      <text x="718" y="216" text-anchor="middle" font-family="IBM Plex Mono" font-size="7.5" fill="#4a5270">aⁿbⁿ · Balanced brackets · Arithmetic</text>
+
+      <!-- LEVEL 3: LBA, CSG -->
+      <circle cx="160" cy="113" r="26" fill="rgba(78,255,160,.07)" stroke="#4effa0" stroke-width="1.5" filter="url(#glo)"/>
+      <text x="160" y="110" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="700" fill="#4effa0">LBA</text>
+      <text x="160" y="122" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4effa060">Lin. Bounded</text>
+
+      <rect x="218" y="90" width="100" height="44" rx="5" fill="rgba(78,255,160,.05)" stroke="rgba(78,255,160,.25)" stroke-width="1.2"/>
+      <text x="268" y="109" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-weight="700" fill="#4effa0">CSG</text>
+      <text x="268" y="121" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4a5270">Context-Sensitive</text>
+      <text x="268" y="130" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4a5270">Grammar</text>
+      <text x="206" y="116" font-family="IBM Plex Mono" font-size="11" fill="#4a5270">⟷</text>
+
+      <rect x="610" y="85" width="216" height="50" rx="5" fill="rgba(0,0,0,.3)"/>
+      <text x="718" y="104" text-anchor="middle" font-family="Playfair Display" font-size="12" font-style="italic" fill="#4effa0">Context-Sensitive Languages</text>
+      <text x="718" y="120" text-anchor="middle" font-family="IBM Plex Mono" font-size="7.5" fill="#4a5270">Natural language (approx) · aⁿbⁿcⁿ</text>
+      <text x="718" y="132" text-anchor="middle" font-family="IBM Plex Mono" font-size="7.5" fill="#4a5270">Bounded computation · PSPACE</text>
+
+      <!-- LEVEL 4: TM, Unrestricted -->
+      <circle cx="160" cy="42" r="26" fill="rgba(167,139,250,.1)" stroke="#a78bfa" stroke-width="1.8" filter="url(#glo2)"/>
+      <text x="160" y="39" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="700" fill="#a78bfa">TM</text>
+      <text x="160" y="51" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#a78bfa80">Turing Machine</text>
+
+      <rect x="218" y="18" width="100" height="44" rx="5" fill="rgba(167,139,250,.06)" stroke="rgba(167,139,250,.3)" stroke-width="1.2"/>
+      <text x="268" y="37" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" font-weight="700" fill="#a78bfa">URG</text>
+      <text x="268" y="49" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4a5270">Unrestricted</text>
+      <text x="268" y="58" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4a5270">Grammar</text>
+      <text x="206" y="44" font-family="IBM Plex Mono" font-size="11" fill="#4a5270">⟷</text>
+
+      <rect x="610" y="14" width="216" height="50" rx="5" fill="rgba(0,0,0,.3)"/>
+      <text x="718" y="33" text-anchor="middle" font-family="Playfair Display" font-size="12" font-style="italic" fill="#a78bfa">Recursively Enumerable</text>
+      <text x="718" y="49" text-anchor="middle" font-family="IBM Plex Mono" font-size="7.5" fill="#4a5270">Everything a computer can compute</text>
+      <text x="718" y="61" text-anchor="middle" font-family="IBM Plex Mono" font-size="7.5" fill="#4a5270">Halting problem — undecidable!</text>
+
+      <!-- Power bar on left edge -->
+      <rect x="4" y="12" width="8" height="308" rx="4" fill="url(#powerBar)"/>
+      <defs>
+        <linearGradient id="powerBar" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#a78bfa"/>
+          <stop offset="33%" stop-color="#4effa0"/>
+          <stop offset="66%" stop-color="#3dd6f5"/>
+          <stop offset="100%" stop-color="#f5a623"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  </div>
+
+  <!-- Quick concept cards row -->
+  <div class="three-col">
+    <div class="card" style="--cl:#f5a623">
+      <h4>Automaton (pl. Automata)</h4>
+      <p>An abstract self-operating machine defined by: a set of <strong style="color:#f5a623">states</strong>, an input <strong style="color:#f5a623">alphabet</strong>, a <strong style="color:#f5a623">transition function</strong>, a start state, and accept states. It reads input symbols and changes state according to rules.</p>
+    </div>
+    <div class="card" style="--cl:#3dd6f5">
+      <h4>Formal Language</h4>
+      <p>A set of strings over an alphabet Σ. E.g., the language of all binary strings with even number of 1s. Automata <em>recognize</em> (accept/reject) languages. Different machines recognize different classes of languages.</p>
+      <div class="badge">L = { w ∈ Σ* | w satisfies property P }</div>
+    </div>
+    <div class="card" style="--cl:#a78bfa">
+      <h4>Why it Matters</h4>
+      <p>Compilers use finite automata for <strong style="color:#a78bfa">lexical analysis</strong>, context-free grammars for <strong style="color:#a78bfa">parsing</strong>. Turing machines define the limits of what computers can do. Automata underpin regex engines, XML validators, network protocols, and more.</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANEL 2 — DFA / NFA
+═══════════════════════════════════════ -->
+<div id="p-dfa" class="panel">
+<div class="wrap">
+
+  <div class="sec-intro">
+    <div class="tag">Level 1 Automata</div>
+    <h2>Deterministic &amp; Nondeterministic Finite Automata</h2>
+    <p>A <strong style="color:#f5a623">Finite Automaton</strong> has a fixed, finite set of states, reads input one symbol at a time, and either accepts or rejects the string. A DFA has exactly one transition per symbol per state. An NFA may have zero, one, or many.</p>
+  </div>
+
+  <div class="two-col">
+  <div>
+
+  <!-- DFA diagram: accepts strings over {a,b} ending in 'ab' -->
+  <div class="dbox">
+    <div class="dbox-title"><div class="pip"></div>DFA — ACCEPTS STRINGS OVER {a,b} ENDING IN "ab"</div>
+    <svg viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#f5a623"/></marker>
+        <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#3dd6f5"/></marker>
+        <filter id="sg"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="sg2"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <rect width="680" height="220" fill="#0c0e14"/>
+
+      <!-- States: q0, q1 (seen 'a'), q2 (accept: seen 'ab') -->
+      <!-- Positions: q0=120,110  q1=340,110  q2=560,110 -->
+
+      <!-- Start arrow -->
+      <line x1="40" y1="110" x2="88" y2="110" stroke="#f5a623" stroke-width="1.5" marker-end="url(#a1)"/>
+      <text x="55" y="103" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">start</text>
+
+      <!-- q0 -->
+      <circle cx="110" cy="110" r="28" fill="rgba(245,166,35,.08)" stroke="#f5a623" stroke-width="2" filter="url(#sg)" id="dfa-q0"/>
+      <text x="110" y="107" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#f5a623">q₀</text>
+      <text x="110" y="120" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">start</text>
+
+      <!-- q1 -->
+      <circle cx="340" cy="110" r="28" fill="rgba(245,166,35,.05)" stroke="rgba(245,166,35,.5)" stroke-width="1.5" id="dfa-q1"/>
+      <text x="340" y="107" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#ffd080">q₁</text>
+      <text x="340" y="120" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">saw 'a'</text>
+
+      <!-- q2 ACCEPT (double circle) -->
+      <circle cx="570" cy="110" r="32" fill="rgba(78,255,160,.05)" stroke="#4effa0" stroke-width="1" id="dfa-q2-outer"/>
+      <circle cx="570" cy="110" r="26" fill="rgba(78,255,160,.08)" stroke="#4effa0" stroke-width="2" filter="url(#sg)" id="dfa-q2"/>
+      <text x="570" y="107" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#4effa0">q₂</text>
+      <text x="570" y="120" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">ACCEPT</text>
+
+      <!-- Transitions -->
+      <!-- q0 --a--> q1 -->
+      <path d="M138,104 L312,104" fill="none" stroke="#f5a623" stroke-width="1.5" marker-end="url(#a1)"/>
+      <text x="225" y="97" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#f5a623">a</text>
+
+      <!-- q1 --b--> q2 -->
+      <path d="M368,104 L540,104" fill="none" stroke="#f5a623" stroke-width="1.5" marker-end="url(#a1)"/>
+      <text x="454" y="97" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#f5a623">b</text>
+
+      <!-- q0 --b--> q0 (self-loop) -->
+      <path d="M96,83 Q80,50 125,83" fill="none" stroke="#3dd6f5" stroke-width="1.3" marker-end="url(#a2)"/>
+      <text x="95" y="52" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#3dd6f5">b</text>
+
+      <!-- q1 --a--> q1 (self-loop) -->
+      <path d="M326,83 Q310,50 355,83" fill="none" stroke="#3dd6f5" stroke-width="1.3" marker-end="url(#a2)"/>
+      <text x="325" y="52" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#3dd6f5">a</text>
+
+      <!-- q2 --a--> q1 (arc back) -->
+      <path d="M548,136 Q450,180 360,136" fill="none" stroke="#f5a623" stroke-width="1.3" marker-end="url(#a1)"/>
+      <text x="454" y="182" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#f5a623">a</text>
+
+      <!-- q2 --b--> q0 (arc back long) -->
+      <path d="M556,138 Q340,210 126,138" fill="none" stroke="#3dd6f5" stroke-width="1.3" marker-end="url(#a2)"/>
+      <text x="340" y="215" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#3dd6f5">b</text>
+
+      <!-- Legend -->
+      <rect x="20" y="175" width="260" height="36" rx="3" fill="rgba(0,0,0,.4)"/>
+      <text x="30" y="189" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">δ(q₀,a)=q₁  δ(q₀,b)=q₀  δ(q₁,a)=q₁</text>
+      <text x="30" y="202" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">δ(q₁,b)=q₂  δ(q₂,a)=q₁  δ(q₂,b)=q₀</text>
+    </svg>
+  </div>
+
+  <!-- INTERACTIVE DFA SIMULATOR -->
+  <div class="dbox">
+    <div class="dbox-title"><div class="pip" style="background:#3dd6f5;box-shadow:0 0 8px #3dd6f5"></div>INTERACTIVE SIMULATOR — TEST A STRING</div>
+    <div id="dfa-sim">
+      <div class="sim-row">
+        <span class="sim-label">INPUT</span>
+        <input class="sim-input" id="dfa-inp" placeholder="e.g.  aab  or  bab  or  ab" maxlength="20" oninput="runDFA()"/>
+      </div>
+      <div class="sim-row">
+        <span class="sim-label">TAPE</span>
+        <div class="sim-tape" id="dfa-tape"></div>
+      </div>
+      <div class="sim-row">
+        <span class="sim-label">RESULT</span>
+        <div id="dfa-result">type a string above</div>
+      </div>
+      <div style="font-size:.62rem;color:var(--muted);margin-top:6px">
+        Language: all strings over {a,b} that END with "ab" &nbsp;·&nbsp; e.g. ab, aab, bab, aaab ✓
+      </div>
+    </div>
+  </div>
+
+  <!-- NFA diagram -->
+  <div class="dbox">
+    <div class="dbox-title"><div class="pip" style="background:#ff6b9d;box-shadow:0 0 8px #ff6b9d"></div>NFA — ACCEPTS STRINGS ENDING IN "ab" (nondeterministic)</div>
+    <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="an" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#ff6b9d"/></marker>
+      </defs>
+      <rect width="680" height="200" fill="#0c0e14"/>
+
+      <!-- NFA has 3 states but no back-transitions — nondeterminism handles it -->
+      <line x1="30" y1="100" x2="72" y2="100" stroke="#ff6b9d" stroke-width="1.5" marker-end="url(#an)"/>
+      <text x="44" y="93" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">start</text>
+
+      <!-- q0 -->
+      <circle cx="96" cy="100" r="26" fill="rgba(255,107,157,.08)" stroke="#ff6b9d" stroke-width="2"/>
+      <text x="96" y="97" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#ff6b9d">q₀</text>
+      <text x="96" y="110" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">start</text>
+
+      <!-- q1 -->
+      <circle cx="320" cy="100" r="26" fill="rgba(255,107,157,.05)" stroke="rgba(255,107,157,.5)" stroke-width="1.5"/>
+      <text x="320" y="97" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#ff6b9d">q₁</text>
+      <text x="320" y="110" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">saw 'a'</text>
+
+      <!-- q2 accept -->
+      <circle cx="540" cy="100" r="30" fill="rgba(78,255,160,.05)" stroke="#4effa0" stroke-width="1"/>
+      <circle cx="540" cy="100" r="24" fill="rgba(78,255,160,.08)" stroke="#4effa0" stroke-width="2"/>
+      <text x="540" y="97" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#4effa0">q₂</text>
+      <text x="540" y="110" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">ACCEPT</text>
+
+      <!-- q0 self a,b -->
+      <path d="M82,75 Q65,42 110,75" fill="none" stroke="#ff6b9d" stroke-width="1.3" marker-end="url(#an)"/>
+      <text x="74" y="44" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#ff6b9d">a,b</text>
+
+      <!-- q0 --a--> q1 (nondeterministic GUESS) -->
+      <path d="M122,94 L294,94" fill="none" stroke="#ff6b9d" stroke-width="1.5" marker-end="url(#an)"/>
+      <text x="208" y="86" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#ff6b9d">a</text>
+
+      <!-- q1 --b--> q2 -->
+      <path d="M346,94 L512,94" fill="none" stroke="#ff6b9d" stroke-width="1.5" marker-end="url(#an)"/>
+      <text x="429" y="86" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#ff6b9d">b</text>
+
+      <!-- annotation bubbles -->
+      <rect x="50" y="148" width="280" height="38" rx="3" fill="rgba(255,107,157,.05)" stroke="rgba(255,107,157,.2)" stroke-width="1"/>
+      <text x="60" y="163" font-family="IBM Plex Mono" font-size="8" fill="#ff6b9d">NFA: from q₀ on 'a', TWO transitions:</text>
+      <text x="60" y="177" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">stay in q₀ (self-loop)  OR  go to q₁ (guess)</text>
+
+      <rect x="348" y="148" width="290" height="38" rx="3" fill="rgba(78,255,160,.04)" stroke="rgba(78,255,160,.2)" stroke-width="1"/>
+      <text x="358" y="163" font-family="IBM Plex Mono" font-size="8" fill="#4effa0">NFA accepts if ANY computation path</text>
+      <text x="358" y="177" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">leads to an accept state</text>
+    </svg>
+  </div>
+
+  </div><!-- /left col -->
+
+  <div class="card-stack">
+    <div class="card" style="--cl:#f5a623">
+      <h4>DFA — Formal Definition</h4>
+      <p>A 5-tuple <strong style="color:#f5a623">M = (Q, Σ, δ, q₀, F)</strong><br><br>
+      <span style="color:#ffd080">Q</span> — finite set of states<br>
+      <span style="color:#ffd080">Σ</span> — input alphabet<br>
+      <span style="color:#ffd080">δ: Q×Σ→Q</span> — transition function<br>
+      <span style="color:#ffd080">q₀ ∈ Q</span> — start state<br>
+      <span style="color:#ffd080">F ⊆ Q</span> — set of accept states</p>
+      <div class="badge">Exactly 1 transition per (state, symbol)</div>
+    </div>
+    <div class="card" style="--cl:#ff6b9d">
+      <h4>NFA vs DFA</h4>
+      <p>An NFA may have <strong style="color:#ff6b9d">0, 1, or many</strong> transitions for a symbol — or even ε (epsilon) transitions that consume no input. It accepts if <em>any</em> possible computation path reaches an accept state. Surprisingly, NFA and DFA recognize the exact same class of languages!</p>
+      <div class="badge">NFA ≡ DFA (same power, different size)</div>
+    </div>
+    <div class="card" style="--cl:#3dd6f5">
+      <h4>Subset Construction</h4>
+      <p>Every NFA can be converted to an equivalent DFA via the <strong style="color:#3dd6f5">subset construction</strong> algorithm. Each DFA state represents a <em>set</em> of NFA states. A DFA may need up to 2ⁿ states to simulate an NFA with n states.</p>
+    </div>
+    <div class="card" style="--cl:#4effa0">
+      <h4>Acceptance</h4>
+      <p>A DFA <strong style="color:#4effa0">accepts</strong> a string w if, starting from q₀ and following δ for each symbol of w, the machine ends in a state q ∈ F. The <em>language of M</em> is L(M) = all strings accepted by M.</p>
+    </div>
+    <div class="card" style="--cl:#a78bfa">
+      <h4>Epsilon (ε) Transitions</h4>
+      <p>An ε-NFA can change state without reading any input symbol. This makes constructing automata from regex much easier. The ε-closure of a state is all states reachable via ε alone. ε-NFAs are also equivalent in power to DFAs.</p>
+    </div>
+    <div class="card" style="--cl:#ffd080">
+      <h4>Pumping Lemma</h4>
+      <p>A tool to prove a language is <strong style="color:#ffd080">NOT regular</strong>. If L is regular, any long enough string can be "pumped" (middle part repeated any number of times) and still be in L. Example: {aⁿbⁿ} fails the pumping lemma, so it is not regular.</p>
+    </div>
+  </div>
+
+  </div><!-- /two-col -->
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANEL 3 — REGEX
+═══════════════════════════════════════ -->
+<div id="p-regex" class="panel">
+<div class="wrap">
+
+  <div class="sec-intro">
+    <div class="tag">Regular Expressions</div>
+    <h2>Regular Expressions &amp; Their Connection to Finite Automata</h2>
+    <p>Regular expressions are a compact algebraic notation for describing regular languages — exactly the languages recognized by finite automata. Every regex can be converted to an NFA (Thompson's construction), and vice versa.</p>
+  </div>
+
+  <div class="two-col">
+  <div>
+
+  <!-- Regex operators -->
+  <div class="dbox">
+    <div class="dbox-title"><div class="pip"></div>REGULAR EXPRESSION OPERATORS & NFA FRAGMENTS</div>
+    <svg viewBox="0 0 680 420" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ra" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#f5a623"/></marker>
+        <marker id="re" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#3dd6f5"/></marker>
+        <filter id="rg"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <rect width="680" height="420" fill="#0c0e14"/>
+
+      <!-- 1. Single symbol 'a' -->
+      <text x="24" y="42" font-family="IBM Plex Mono" font-size="10" fill="#f5a623" font-weight="700">1. Single symbol:  a</text>
+      <line x1="90" y1="70" x2="115" y2="70" stroke="#f5a623" stroke-width="1.5" marker-end="url(#ra)"/>
+      <circle cx="136" cy="70" r="18" fill="rgba(245,166,35,.08)" stroke="#f5a623" stroke-width="1.5"/>
+      <text x="136" y="67" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623">q₀</text>
+      <path d="M154,70 L180,70" fill="none" stroke="#f5a623" stroke-width="1.5" marker-end="url(#ra)"/>
+      <text x="167" y="63" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#f5a623">a</text>
+      <circle cx="200" cy="70" r="20" fill="rgba(78,255,160,.06)" stroke="#4effa0" stroke-width="1"/>
+      <circle cx="200" cy="70" r="14" fill="rgba(78,255,160,.1)" stroke="#4effa0" stroke-width="1.5"/>
+      <text x="200" y="67" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4effa0">q₁</text>
+      <text x="340" y="65" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">Matches exactly the character 'a'</text>
+      <text x="340" y="78" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">NFA: start → q₀ —a→ q₁(accept)</text>
+
+      <line x1="20" y1="100" x2="660" y2="100" stroke="#1e2530" stroke-width="1"/>
+
+      <!-- 2. Concatenation: ab -->
+      <text x="24" y="125" font-family="IBM Plex Mono" font-size="10" fill="#f5a623" font-weight="700">2. Concatenation:  ab  (r₁r₂)</text>
+      <circle cx="136" cy="158" r="16" fill="rgba(245,166,35,.08)" stroke="#f5a623" stroke-width="1.5"/>
+      <text x="136" y="163" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623">q₀</text>
+      <path d="M152,158 L175,158" fill="none" stroke="#f5a623" stroke-width="1.5" marker-end="url(#ra)"/>
+      <text x="163" y="151" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#f5a623">a</text>
+      <circle cx="196" cy="158" r="16" fill="rgba(245,166,35,.05)" stroke="rgba(245,166,35,.5)" stroke-width="1.3"/>
+      <text x="196" y="163" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#ffd080">q₁</text>
+      <path d="M212,158 L235,158" fill="none" stroke="#f5a623" stroke-width="1.5" marker-end="url(#ra)"/>
+      <text x="223" y="151" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#f5a623">b</text>
+      <circle cx="256" cy="158" r="18" fill="rgba(78,255,160,.06)" stroke="#4effa0" stroke-width="1"/>
+      <circle cx="256" cy="158" r="13" fill="rgba(78,255,160,.1)" stroke="#4effa0" stroke-width="1.5"/>
+      <text x="256" y="163" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4effa0">q₂</text>
+      <text x="310" y="153" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">Connect NFAs end-to-start.</text>
+      <text x="310" y="167" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">ε-link accept of r₁ to start of r₂.</text>
+
+      <line x1="20" y1="190" x2="660" y2="190" stroke="#1e2530" stroke-width="1"/>
+
+      <!-- 3. Union/Alternation: a|b -->
+      <text x="24" y="212" font-family="IBM Plex Mono" font-size="10" fill="#f5a623" font-weight="700">3. Union / Alternation:  a|b  (r₁|r₂)</text>
+      <!-- new start -->
+      <circle cx="100" cy="252" r="14" fill="rgba(245,166,35,.1)" stroke="#f5a623" stroke-width="1.5"/>
+      <text x="100" y="257" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623">S</text>
+      <!-- ε to top branch -->
+      <path d="M113,244 L145,228" fill="none" stroke="#3dd6f5" stroke-width="1.2" marker-end="url(#re)" stroke-dasharray="4 2"/>
+      <text x="125" y="232" font-family="IBM Plex Mono" font-size="8" fill="#3dd6f5">ε</text>
+      <!-- top: a -->
+      <circle cx="166" cy="222" r="14" fill="rgba(245,166,35,.05)" stroke="rgba(245,166,35,.5)" stroke-width="1.2"/>
+      <text x="166" y="227" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#ffd080">q₁</text>
+      <path d="M180,222 L200,222" fill="none" stroke="#f5a623" stroke-width="1.5" marker-end="url(#ra)"/>
+      <text x="190" y="215" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#f5a623">a</text>
+      <circle cx="220" cy="222" r="13" fill="rgba(78,255,160,.06)" stroke="#4effa0" stroke-width="1.3"/>
+      <text x="220" y="227" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4effa0">q₂</text>
+      <!-- ε to bottom branch -->
+      <path d="M113,260 L145,276" fill="none" stroke="#3dd6f5" stroke-width="1.2" marker-end="url(#re)" stroke-dasharray="4 2"/>
+      <text x="125" y="278" font-family="IBM Plex Mono" font-size="8" fill="#3dd6f5">ε</text>
+      <!-- bottom: b -->
+      <circle cx="166" cy="285" r="14" fill="rgba(245,166,35,.05)" stroke="rgba(245,166,35,.5)" stroke-width="1.2"/>
+      <text x="166" y="290" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#ffd080">q₃</text>
+      <path d="M180,285 L200,285" fill="none" stroke="#f5a623" stroke-width="1.5" marker-end="url(#ra)"/>
+      <text x="190" y="278" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#f5a623">b</text>
+      <circle cx="220" cy="285" r="13" fill="rgba(78,255,160,.06)" stroke="#4effa0" stroke-width="1.3"/>
+      <text x="220" y="290" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4effa0">q₄</text>
+      <!-- new accept -->
+      <path d="M233,222 Q260,252 250,252" fill="none" stroke="#3dd6f5" stroke-width="1.2" marker-end="url(#re)" stroke-dasharray="4 2"/>
+      <path d="M233,285 Q260,270 250,252" fill="none" stroke="#3dd6f5" stroke-width="1.2" marker-end="url(#re)" stroke-dasharray="4 2"/>
+      <circle cx="264" cy="252" r="14" fill="rgba(78,255,160,.08)" stroke="#4effa0" stroke-width="1"/>
+      <circle cx="264" cy="252" r="10" fill="rgba(78,255,160,.12)" stroke="#4effa0" stroke-width="1.5"/>
+      <text x="264" y="257" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4effa0">F</text>
+      <text x="310" y="245" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">Add new start S, new accept F.</text>
+      <text x="310" y="259" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">ε-edges to both branches,</text>
+      <text x="310" y="273" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">both old accepts ε→ new F.</text>
+
+      <line x1="20" y1="315" x2="660" y2="315" stroke="#1e2530" stroke-width="1"/>
+
+      <!-- 4. Kleene star: a* -->
+      <text x="24" y="337" font-family="IBM Plex Mono" font-size="10" fill="#f5a623" font-weight="700">4. Kleene Star:  a*  (zero or more)</text>
+      <circle cx="100" cy="378" r="14" fill="rgba(245,166,35,.1)" stroke="#f5a623" stroke-width="1.5"/>
+      <text x="100" y="383" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623">S</text>
+      <!-- ε to inner -->
+      <path d="M113,378 L148,378" fill="none" stroke="#3dd6f5" stroke-width="1.2" marker-end="url(#re)" stroke-dasharray="4 2"/>
+      <text x="130" y="371" font-family="IBM Plex Mono" font-size="8" fill="#3dd6f5">ε</text>
+      <circle cx="168" cy="378" r="14" fill="rgba(245,166,35,.05)" stroke="rgba(245,166,35,.5)" stroke-width="1.2"/>
+      <text x="168" y="383" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#ffd080">q₁</text>
+      <path d="M182,378 L205,378" fill="none" stroke="#f5a623" stroke-width="1.5" marker-end="url(#ra)"/>
+      <text x="193" y="371" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" font-weight="700" fill="#f5a623">a</text>
+      <circle cx="224" cy="378" r="14" fill="rgba(78,255,160,.06)" stroke="#4effa0" stroke-width="1.3"/>
+      <text x="224" y="383" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4effa0">q₂</text>
+      <!-- back ε loop -->
+      <path d="M220,364 Q194,340 170,364" fill="none" stroke="#3dd6f5" stroke-width="1.3" marker-end="url(#re)" stroke-dasharray="4 2"/>
+      <text x="194" y="340" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#3dd6f5">ε (loop back)</text>
+      <!-- ε to final -->
+      <path d="M238,378 L268,378" fill="none" stroke="#3dd6f5" stroke-width="1.2" marker-end="url(#re)" stroke-dasharray="4 2"/>
+      <text x="253" y="371" font-family="IBM Plex Mono" font-size="8" fill="#3dd6f5">ε</text>
+      <circle cx="284" cy="378" r="16" fill="rgba(78,255,160,.06)" stroke="#4effa0" stroke-width="1"/>
+      <circle cx="284" cy="378" r="11" fill="rgba(78,255,160,.1)" stroke="#4effa0" stroke-width="1.5"/>
+      <text x="284" y="383" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4effa0">F</text>
+      <!-- ε skip (zero times) -->
+      <path d="M113,366 Q192,335 268,366" fill="none" stroke="#3dd6f5" stroke-width="1" stroke-dasharray="3 3" marker-end="url(#re)"/>
+      <text x="192" y="330" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#3dd6f5">ε (zero times)</text>
+
+      <text x="340" y="368" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">ε-back loop = repeat.</text>
+      <text x="340" y="382" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">ε-skip = match zero times.</text>
+      <text x="340" y="396" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">a+ = aa*  (one or more)</text>
+    </svg>
+  </div>
+
+  </div>
+
+  <div class="card-stack">
+    <div class="card" style="--cl:#f5a623">
+      <h4>Regex Operators</h4>
+      <p>Three primitive operations suffice to build any regex:<br><br>
+      <span style="color:#ffd080">·</span> Concatenation — RS (r then s)<br>
+      <span style="color:#ffd080">|</span> Alternation — R|S (r or s)<br>
+      <span style="color:#ffd080">*</span> Kleene star — R* (0 or more r)<br><br>
+      All other operators (?, +, {n,m}, character classes) are syntactic sugar for these three.</p>
+    </div>
+    <div class="card" style="--cl:#3dd6f5">
+      <h4>Kleene's Theorem</h4>
+      <p>A language is regular if and only if it can be described by a regular expression. This means: <br>
+      <strong style="color:#3dd6f5">DFA ⟺ NFA ⟺ ε-NFA ⟺ Regex</strong><br><br>
+      All four formalisms are equivalent in power.</p>
+    </div>
+    <div class="card" style="--cl:#4effa0">
+      <h4>Common Regex Examples</h4>
+      <p>
+      <code style="color:#4effa0">a*b*</code> — zero or more a's then b's<br>
+      <code style="color:#4effa0">(a|b)*abb</code> — any string ending in "abb"<br>
+      <code style="color:#4effa0">[0-9]+</code> — one or more digits<br>
+      <code style="color:#4effa0">(a|ε)b</code> — "b" or "ab"<br>
+      <code style="color:#4effa0">Σ*</code> — all strings over alphabet</p>
+    </div>
+    <div class="card" style="--cl:#a78bfa">
+      <h4>Thompson's Construction</h4>
+      <p>Converts a regex to an ε-NFA in O(n) states. Build NFAs for base cases (single symbols), then combine using the three operators by wiring NFA fragments with ε-transitions as shown in the diagrams.</p>
+    </div>
+    <div class="card" style="--cl:#ff6b9d">
+      <h4>Real-World Usage</h4>
+      <p>Regex engines power: grep, sed, Python re module, JavaScript RegExp, lexical analysers (flex/lex), search engines, input validation. Understanding NFAs helps you reason about catastrophic backtracking in regex engines that use backtracking simulation.</p>
+    </div>
+  </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANEL 4 — PDA
+═══════════════════════════════════════ -->
+<div id="p-pda" class="panel">
+<div class="wrap">
+
+  <div class="sec-intro">
+    <div class="tag">Level 2 Automata</div>
+    <h2>Pushdown Automata (PDA)</h2>
+    <p>A PDA is a finite automaton augmented with an <strong style="color:#3dd6f5">infinite stack</strong>. The stack lets it remember unlimited information, enabling it to recognize context-free languages like <code style="color:#3dd6f5">{ aⁿbⁿ | n≥0 }</code> — impossible for a DFA.</p>
+  </div>
+
+  <div class="two-col">
+  <div>
+
+  <!-- PDA Architecture -->
+  <div class="dbox">
+    <div class="dbox-title"><div class="pip" style="background:#3dd6f5;box-shadow:0 0 8px #3dd6f5"></div>PDA ARCHITECTURE — CONTROL UNIT + STACK</div>
+    <svg viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#3dd6f5"/></marker>
+        <filter id="pg"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <rect width="680" height="320" fill="#0c0e14"/>
+
+      <!-- INPUT TAPE top -->
+      <text x="50" y="28" font-family="IBM Plex Mono" font-size="9" fill="#4a5270" letter-spacing="2">INPUT TAPE</text>
+      <g font-family="IBM Plex Mono" font-size="13" font-weight="700">
+        <rect x="50" y="34" width="38" height="38" rx="3" fill="rgba(61,214,245,.05)" stroke="rgba(61,214,245,.2)" stroke-width="1"/>
+        <text x="69" y="58" text-anchor="middle" fill="#3dd6f5">a</text>
+        <rect x="90" y="34" width="38" height="38" rx="3" fill="rgba(61,214,245,.1)" stroke="#3dd6f5" stroke-width="1.5"/>
+        <text x="109" y="58" text-anchor="middle" fill="#3dd6f5">a</text>
+        <rect x="130" y="34" width="38" height="38" rx="3" fill="rgba(61,214,245,.05)" stroke="rgba(61,214,245,.2)" stroke-width="1"/>
+        <text x="149" y="58" text-anchor="middle" fill="#3dd6f5">b</text>
+        <rect x="170" y="34" width="38" height="38" rx="3" fill="rgba(61,214,245,.05)" stroke="rgba(61,214,245,.2)" stroke-width="1"/>
+        <text x="189" y="58" text-anchor="middle" fill="#3dd6f5">b</text>
+        <rect x="210" y="34" width="38" height="38" rx="3" fill="rgba(61,214,245,.03)" stroke="rgba(61,214,245,.1)" stroke-width="1"/>
+        <text x="229" y="58" text-anchor="middle" fill="#4a5270">$</text>
+      </g>
+      <!-- Read head -->
+      <text x="109" y="82" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#3dd6f5">▲</text>
+      <text x="109" y="94" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">read head</text>
+
+      <!-- Arrow to control -->
+      <line x1="200" y1="53" x2="295" y2="100" stroke="#3dd6f5" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#pa)"/>
+      <text x="240" y="75" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">read symbol</text>
+
+      <!-- FINITE CONTROL (center) -->
+      <rect x="300" y="90" width="160" height="120" rx="8" fill="rgba(61,214,245,.06)" stroke="#3dd6f5" stroke-width="2" filter="url(#pg)"/>
+      <text x="380" y="112" text-anchor="middle" font-family="Playfair Display" font-size="14" font-style="italic" fill="#3dd6f5">Finite</text>
+      <text x="380" y="128" text-anchor="middle" font-family="Playfair Display" font-size="14" font-style="italic" fill="#3dd6f5">Control</text>
+      <!-- States inside -->
+      <circle cx="355" cy="165" r="16" fill="rgba(61,214,245,.08)" stroke="#3dd6f5" stroke-width="1.5"/>
+      <text x="355" y="169" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#3dd6f5">q₀</text>
+      <circle cx="404" cy="165" r="16" fill="rgba(61,214,245,.06)" stroke="rgba(61,214,245,.5)" stroke-width="1.2"/>
+      <text x="404" y="169" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#3dd6f5">q₁</text>
+      <path d="M371,165 L388,165" fill="none" stroke="#3dd6f5" stroke-width="1.2" marker-end="url(#pa)"/>
+
+      <!-- Arrow to/from stack -->
+      <path d="M462,150 L510,170" fill="none" stroke="#3dd6f5" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#pa)"/>
+      <path d="M508,185 L462,168" fill="none" stroke="#f5a623" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#pa)"/>
+      <text x="485" y="158" font-family="IBM Plex Mono" font-size="7.5" fill="#3dd6f5">pop/peek</text>
+      <text x="485" y="194" font-family="IBM Plex Mono" font-size="7.5" fill="#f5a623">push</text>
+
+      <!-- STACK (right side) -->
+      <text x="545" y="50" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4a5270" letter-spacing="2">STACK</text>
+      <rect x="520" y="56" width="50" height="28" rx="3" fill="rgba(245,166,35,.08)" stroke="#f5a623" stroke-width="1.3"/>
+      <text x="545" y="74" text-anchor="middle" font-family="IBM Plex Mono" font-size="12" font-weight="700" fill="#f5a623">Z₀</text>
+      <text x="580" y="72" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">← bottom marker</text>
+      <rect x="520" y="86" width="50" height="28" rx="3" fill="rgba(245,166,35,.12)" stroke="#f5a623" stroke-width="1.5"/>
+      <text x="545" y="104" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" font-weight="700" fill="#f5a623">A</text>
+      <rect x="520" y="116" width="50" height="28" rx="3" fill="rgba(245,166,35,.16)" stroke="#f5a623" stroke-width="1.8"/>
+      <text x="545" y="134" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" font-weight="700" fill="#f5a623">A</text>
+      <!-- top indicator -->
+      <text x="505" y="130" font-family="IBM Plex Mono" font-size="10" fill="#f5a623">►</text>
+      <text x="480" y="130" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">top</text>
+      <!-- arrow down -->
+      <text x="545" y="156" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#4a5270">↓ grows</text>
+
+      <!-- Transition label format -->
+      <rect x="30" y="180" width="440" height="120" rx="5" fill="rgba(0,0,0,.4)" stroke="var(--border)" stroke-width="1"/>
+      <text x="44" y="200" font-family="IBM Plex Mono" font-size="10" font-weight="700" fill="#3dd6f5">TRANSITION NOTATION:  δ(q, a, A) = (p, γ)</text>
+      <text x="44" y="218" font-family="IBM Plex Mono" font-size="8.5" fill="#4a5270">  q = current state         a = input symbol (or ε)</text>
+      <text x="44" y="233" font-family="IBM Plex Mono" font-size="8.5" fill="#4a5270">  A = top of stack symbol   p = next state</text>
+      <text x="44" y="248" font-family="IBM Plex Mono" font-size="8.5" fill="#4a5270">  γ = string to push onto stack (replace A with γ)</text>
+      <line x1="44" y1="256" x2="454" y2="256" stroke="#1e2530" stroke-width="1"/>
+      <text x="44" y="270" font-family="IBM Plex Mono" font-size="8.5" fill="#f5a623">EXAMPLE:  δ(q₀, a, Z₀) = (q₀, AZ₀)  →  push A, stay in q₀</text>
+      <text x="44" y="285" font-family="IBM Plex Mono" font-size="8.5" fill="#f5a623">           δ(q₀, ε, Z₀) = (q₁, Z₀)  →  switch phase (no input, no pop)</text>
+      <text x="44" y="300" font-family="IBM Plex Mono" font-size="8.5" fill="#f5a623">           δ(q₁, b, A)  = (q₁, ε)   →  pop A (match one b per a)</text>
+    </svg>
+  </div>
+
+  <!-- PDA example: aⁿbⁿ -->
+  <div class="dbox">
+    <div class="dbox-title"><div class="pip" style="background:#4effa0;box-shadow:0 0 8px #4effa0"></div>PDA EXAMPLE — RECOGNISING aⁿbⁿ (e.g. "aabb")</div>
+    <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="pda2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#4effa0"/></marker>
+      </defs>
+      <rect width="680" height="200" fill="#0c0e14"/>
+
+      <!-- States: q0 q1 q2(accept) -->
+      <line x1="30" y1="100" x2="62" y2="100" stroke="#4effa0" stroke-width="1.5" marker-end="url(#pda2)"/>
+      <circle cx="82" cy="100" r="22" fill="rgba(78,255,160,.08)" stroke="#4effa0" stroke-width="2"/>
+      <text x="82" y="97" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="700" fill="#4effa0">q₀</text>
+      <text x="82" y="110" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4a5270">push</text>
+
+      <path d="M104,100 L256,100" fill="none" stroke="#4effa0" stroke-width="1.5" marker-end="url(#pda2)"/>
+      <text x="180" y="90" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4effa0">ε, Z₀/Z₀</text>
+      <text x="180" y="102" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4a5270">(switch to pop phase)</text>
+
+      <circle cx="278" cy="100" r="22" fill="rgba(78,255,160,.06)" stroke="rgba(78,255,160,.5)" stroke-width="1.5"/>
+      <text x="278" y="97" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="700" fill="#4effa0">q₁</text>
+      <text x="278" y="110" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4a5270">pop</text>
+
+      <path d="M300,100 L450,100" fill="none" stroke="#4effa0" stroke-width="1.5" marker-end="url(#pda2)"/>
+      <text x="375" y="90" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4effa0">ε, Z₀/Z₀</text>
+      <text x="375" y="102" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4a5270">(stack empty → accept)</text>
+
+      <circle cx="474" cy="100" r="26" fill="rgba(78,255,160,.06)" stroke="#4effa0" stroke-width="1"/>
+      <circle cx="474" cy="100" r="20" fill="rgba(78,255,160,.1)" stroke="#4effa0" stroke-width="2"/>
+      <text x="474" y="97" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="700" fill="#4effa0">q₂</text>
+      <text x="474" y="110" text-anchor="middle" font-family="IBM Plex Mono" font-size="7" fill="#4effa0">ACCEPT</text>
+
+      <!-- self loop q0: a,Z₀/AZ₀ and a,A/AA -->
+      <path d="M68,78 Q46,44 96,78" fill="none" stroke="#3dd6f5" stroke-width="1.3" marker-end="url(#pda2)"/>
+      <text x="56" y="44" text-anchor="middle" font-family="IBM Plex Mono" font-size="7.5" fill="#3dd6f5">a,Z₀/AZ₀</text>
+      <text x="56" y="55" text-anchor="middle" font-family="IBM Plex Mono" font-size="7.5" fill="#3dd6f5">a,A/AA</text>
+
+      <!-- self loop q1: b,A/ε -->
+      <path d="M264,78 Q242,44 292,78" fill="none" stroke="#f5a623" stroke-width="1.3" marker-end="url(#pda2)"/>
+      <text x="268" y="44" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#f5a623">b, A/ε</text>
+
+      <!-- Simulation trace -->
+      <rect x="20" y="140" width="640" height="46" rx="4" fill="rgba(0,0,0,.5)"/>
+      <text x="30" y="157" font-family="IBM Plex Mono" font-size="8.5" fill="#4a5270">Input "aabb":  (q₀,aabb,Z₀) → (q₀,abb,AZ₀) → (q₀,bb,AAZ₀) → (q₁,bb,AAZ₀)</text>
+      <text x="30" y="173" font-family="IBM Plex Mono" font-size="8.5" fill="#4a5270">              → (q₁,b,AZ₀) → (q₁,ε,Z₀) → (q₂,ε,Z₀)  ✓  ACCEPT</text>
+    </svg>
+  </div>
+
+  <!-- CFG -->
+  <div class="dbox">
+    <div class="dbox-title"><div class="pip" style="background:#ff6b9d;box-shadow:0 0 8px #ff6b9d"></div>CONTEXT-FREE GRAMMAR — EQUIVALENT TO PDA</div>
+    <svg viewBox="0 0 680 175" xmlns="http://www.w3.org/2000/svg">
+      <rect width="680" height="175" fill="#0c0e14"/>
+      <!-- two columns -->
+      <line x1="340" y1="10" x2="340" y2="165" stroke="#1e2530" stroke-width="1"/>
+
+      <!-- Left: CFG rules -->
+      <text x="30" y="28" font-family="IBM Plex Mono" font-size="9" fill="#ff6b9d" letter-spacing="2">CFG FOR aⁿbⁿ:</text>
+      <text x="30" y="50" font-family="IBM Plex Mono" font-size="11" fill="#ff6b9d" font-weight="700">S → aSb | ε</text>
+      <text x="30" y="75" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">Derivation of "aabb":</text>
+      <text x="30" y="94" font-family="IBM Plex Mono" font-size="10" fill="#ffd080">S ⇒ aSb ⇒ aaSbb ⇒ aabb</text>
+
+      <!-- Parse tree -->
+      <text x="30" y="118" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">Parse tree:</text>
+      <text x="100" y="135" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#ff6b9d" font-weight="700">S</text>
+      <line x1="88" y1="138" x2="60" y2="152" stroke="#4a5270" stroke-width="1"/>
+      <line x1="96" y1="138" x2="88" y2="152" stroke="#4a5270" stroke-width="1"/>
+      <line x1="104" y1="138" x2="112" y2="152" stroke="#4a5270" stroke-width="1"/>
+      <line x1="112" y1="138" x2="140" y2="152" stroke="#4a5270" stroke-width="1"/>
+      <text x="60" y="163" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623">a</text>
+      <text x="88" y="163" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#ff6b9d" font-weight="700">S</text>
+      <text x="112" y="163" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623">b</text>
+      <text x="140" y="163" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">…</text>
+
+      <!-- Right: CFG formal definition -->
+      <text x="356" y="28" font-family="IBM Plex Mono" font-size="9" fill="#ff6b9d" letter-spacing="2">CFG FORMAL DEF:</text>
+      <text x="356" y="48" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">G = (V, Σ, R, S) where:</text>
+      <text x="356" y="64" font-family="IBM Plex Mono" font-size="9" fill="#ffd080">V</text>
+      <text x="370" y="64" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">= set of variables (nonterminals)</text>
+      <text x="356" y="80" font-family="IBM Plex Mono" font-size="9" fill="#ffd080">Σ</text>
+      <text x="370" y="80" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">= terminal alphabet</text>
+      <text x="356" y="96" font-family="IBM Plex Mono" font-size="9" fill="#ffd080">R</text>
+      <text x="370" y="96" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">= production rules  (A → α)</text>
+      <text x="356" y="112" font-family="IBM Plex Mono" font-size="9" fill="#ffd080">S ∈ V</text>
+      <text x="400" y="112" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">= start variable</text>
+      <text x="356" y="135" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">Real-world: JSON grammar,</text>
+      <text x="356" y="149" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">arithmetic  (E→E+T|T),</text>
+      <text x="356" y="163" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">programming language parsers.</text>
+    </svg>
+  </div>
+
+  </div>
+
+  <div class="card-stack">
+    <div class="card" style="--cl:#3dd6f5">
+      <h4>Why a Stack?</h4>
+      <p>A DFA has no memory beyond its state. A stack gives <strong style="color:#3dd6f5">LIFO memory</strong> — perfect for counting, matching brackets, and parsing recursive structures. The stack can hold unlimited symbols, but only the top is accessible at any time.</p>
+    </div>
+    <div class="card" style="--cl:#f5a623">
+      <h4>PDA Formal Definition</h4>
+      <p>A 7-tuple <strong style="color:#f5a623">M = (Q, Σ, Γ, δ, q₀, Z₀, F)</strong><br><br>
+      <span style="color:#ffd080">Γ</span> — stack alphabet<br>
+      <span style="color:#ffd080">Z₀</span> — initial stack symbol<br>
+      <span style="color:#ffd080">δ: Q×(Σ∪{ε})×Γ → P(Q×Γ*)</span><br><br>
+      A PDA is inherently <em>nondeterministic</em>; deterministic PDAs (DPDA) are strictly less powerful.</p>
+    </div>
+    <div class="card" style="--cl:#4effa0">
+      <h4>CFL Examples</h4>
+      <p>
+      <code style="color:#4effa0">{ aⁿbⁿ }</code> — equal a's and b's<br>
+      <code style="color:#4effa0">{ ww^R }</code> — palindromes<br>
+      <code style="color:#4effa0">{ balanced brackets }</code><br>
+      <code style="color:#4effa0">{ arithmetic expressions }</code><br>
+      <code style="color:#4effa0">{ HTML nesting (approx.) }</code><br>
+      NOT CFL: <code style="color:#ff5757">{ aⁿbⁿcⁿ }</code></p>
+    </div>
+    <div class="card" style="--cl:#a78bfa">
+      <h4>CYK Algorithm</h4>
+      <p>Cocke-Younger-Kasami: parses a string using a CFG in O(n³) time. First convert grammar to Chomsky Normal Form (CNF): all rules are A→BC or A→a. Then fill a triangular table bottom-up.</p>
+    </div>
+    <div class="card" style="--cl:#ff6b9d">
+      <h4>Ambiguity</h4>
+      <p>A CFG is <strong style="color:#ff6b9d">ambiguous</strong> if some string has two or more distinct parse trees. Example: <code style="color:#ff6b9d">E→E+E|E*E|n</code> — the string "1+2*3" has two parse trees. Compilers need <em>unambiguous</em> grammars or precedence rules.</p>
+    </div>
+  </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANEL 5 — TURING MACHINE
+═══════════════════════════════════════ -->
+<div id="p-tm" class="panel">
+<div class="wrap">
+
+  <div class="sec-intro">
+    <div class="tag">Level 4 Automata</div>
+    <h2>The Turing Machine</h2>
+    <p>A Turing Machine (TM) is the most powerful computational model. It has a <strong style="color:#a78bfa">two-way infinite tape</strong>, a read/write head, and a finite control. A TM can simulate any algorithm — and defines the limits of what is computable at all.</p>
+  </div>
+
+  <div class="two-col">
+  <div>
+
+  <!-- TM Architecture -->
+  <div class="dbox">
+    <div class="dbox-title"><div class="pip" style="background:#a78bfa;box-shadow:0 0 8px #a78bfa"></div>TURING MACHINE ARCHITECTURE</div>
+    <svg viewBox="0 0 680 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="ta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10z" fill="#a78bfa"/></marker>
+        <filter id="tg"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      </defs>
+      <rect width="680" height="200" fill="#0c0e14"/>
+
+      <!-- Infinite tape -->
+      <text x="340" y="20" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4a5270" letter-spacing="2">INFINITE TWO-WAY TAPE</text>
+      <!-- ∞ indicators -->
+      <text x="20" y="65" text-anchor="middle" font-family="IBM Plex Mono" font-size="18" fill="#4a5270">⋯</text>
+      <text x="658" y="65" text-anchor="middle" font-family="IBM Plex Mono" font-size="18" fill="#4a5270">⋯</text>
+
+      <!-- Tape cells -->
+      <g font-family="IBM Plex Mono" font-size="13" font-weight="700">
+        <rect x="40" y="34" width="44" height="44" rx="3" fill="rgba(167,139,250,.04)" stroke="rgba(167,139,250,.15)" stroke-width="1"/>
+        <text x="62" y="62" text-anchor="middle" fill="#4a5270">_</text>
+        <rect x="86" y="34" width="44" height="44" rx="3" fill="rgba(167,139,250,.06)" stroke="rgba(167,139,250,.2)" stroke-width="1"/>
+        <text x="108" y="62" text-anchor="middle" fill="#a78bfa">1</text>
+        <rect x="132" y="34" width="44" height="44" rx="3" fill="rgba(167,139,250,.06)" stroke="rgba(167,139,250,.2)" stroke-width="1"/>
+        <text x="154" y="62" text-anchor="middle" fill="#a78bfa">1</text>
+
+        <!-- HEAD IS HERE -->
+        <rect x="178" y="28" width="48" height="52" rx="4" fill="rgba(167,139,250,.18)" stroke="#a78bfa" stroke-width="2.5" filter="url(#tg)"/>
+        <text x="202" y="60" text-anchor="middle" fill="#a78bfa">0</text>
+
+        <rect x="228" y="34" width="44" height="44" rx="3" fill="rgba(167,139,250,.06)" stroke="rgba(167,139,250,.2)" stroke-width="1"/>
+        <text x="250" y="62" text-anchor="middle" fill="#a78bfa">1</text>
+        <rect x="274" y="34" width="44" height="44" rx="3" fill="rgba(61,214,245,.08)" stroke="rgba(61,214,245,.3)" stroke-width="1"/>
+        <text x="296" y="62" text-anchor="middle" fill="#3dd6f5">1</text>
+        <rect x="320" y="34" width="44" height="44" rx="3" fill="rgba(61,214,245,.06)" stroke="rgba(61,214,245,.2)" stroke-width="1"/>
+        <text x="342" y="62" text-anchor="middle" fill="#3dd6f5">0</text>
+        <rect x="366" y="34" width="44" height="44" rx="3" fill="rgba(167,139,250,.04)" stroke="rgba(167,139,250,.1)" stroke-width="1"/>
+        <text x="388" y="62" text-anchor="middle" fill="#4a5270">_</text>
+        <rect x="412" y="34" width="44" height="44" rx="3" fill="rgba(167,139,250,.04)" stroke="rgba(167,139,250,.1)" stroke-width="1"/>
+        <text x="434" y="62" text-anchor="middle" fill="#4a5270">_</text>
+      </g>
+
+      <!-- Head pointer -->
+      <text x="202" y="92" text-anchor="middle" font-family="IBM Plex Mono" font-size="14" fill="#a78bfa">▲</text>
+      <text x="202" y="104" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">R/W head</text>
+
+      <!-- Control box -->
+      <rect x="480" y="28" width="180" height="110" rx="7" fill="rgba(167,139,250,.06)" stroke="#a78bfa" stroke-width="1.8" filter="url(#tg)"/>
+      <text x="570" y="50" text-anchor="middle" font-family="Playfair Display" font-size="13" font-style="italic" fill="#a78bfa">Finite Control</text>
+      <circle cx="540" cy="88" r="18" fill="rgba(167,139,250,.1)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="540" y="92" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#a78bfa">q</text>
+      <circle cx="600" cy="88" r="18" fill="rgba(167,139,250,.07)" stroke="rgba(167,139,250,.5)" stroke-width="1.2"/>
+      <text x="600" y="92" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#a78bfa">q'</text>
+      <path d="M558,88 L582,88" fill="none" stroke="#a78bfa" stroke-width="1.2" marker-end="url(#ta)"/>
+      <text x="570" y="82" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">δ</text>
+      <text x="570" y="122" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">q_accept / q_reject</text>
+
+      <!-- Arrow: head ↔ control -->
+      <path d="M480,80 L410,72" fill="none" stroke="#a78bfa" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#ta)"/>
+      <path d="M405,84 L478,96" fill="none" stroke="#f5a623" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#ta)"/>
+      <text x="440" y="68" font-family="IBM Plex Mono" font-size="7.5" fill="#4a5270">read symbol</text>
+      <text x="435" y="104" font-family="IBM Plex Mono" font-size="7.5" fill="#f5a623">write + move L/R</text>
+
+      <!-- Transition notation -->
+      <rect x="30" y="140" width="620" height="48" rx="4" fill="rgba(0,0,0,.5)"/>
+      <text x="44" y="158" font-family="IBM Plex Mono" font-size="9.5" font-weight="700" fill="#a78bfa">TRANSITION:  δ(q, a) = (q', b, D)</text>
+      <text x="44" y="176" font-family="IBM Plex Mono" font-size="8.5" fill="#4a5270">In state q reading a: go to state q', write b on tape, move head D ∈ {L, R, S}</text>
+    </svg>
+  </div>
+
+  <!-- Interactive TM -->
+  <div class="dbox">
+    <div class="dbox-title"><div class="pip" style="background:#a78bfa;box-shadow:0 0 8px #a78bfa"></div>INTERACTIVE TM SIMULATOR — INCREMENTS A BINARY NUMBER</div>
+    <div class="tm-tape-wrap">
+      <div style="font-size:.62rem;color:var(--muted);margin-bottom:8px">TM that adds 1 to a binary number. Tape initially: <code style="color:#a78bfa">1 0 1 1</code> (= 11 in decimal)</div>
+      <div class="tm-cells" id="tm-cells"></div>
+      <div class="tm-head-marker" id="tm-marker">▲ HEAD at position <span id="tm-pos">0</span></div>
+      <div class="tm-controls">
+        <div class="tm-state-badge" id="tm-state">State: q₀</div>
+        <button class="sim-btn" onclick="tmStep()">▶ Step</button>
+        <button class="sim-btn" onclick="tmReset()">↺ Reset</button>
+        <button class="sim-btn" onclick="tmRun()">⚡ Run All</button>
+      </div>
+      <div class="tm-log" id="tm-log"></div>
+    </div>
+  </div>
+
+  <!-- Decidability -->
+  <div class="dbox">
+    <div class="dbox-title"><div class="pip" style="background:#ff5757;box-shadow:0 0 8px #ff5757"></div>DECIDABILITY — WHAT TURING MACHINES CANNOT DO</div>
+    <svg viewBox="0 0 680 160" xmlns="http://www.w3.org/2000/svg">
+      <rect width="680" height="160" fill="#0c0e14"/>
+      <!-- Three zones -->
+      <rect x="15" y="15" width="200" height="130" rx="5" fill="rgba(78,255,160,.05)" stroke="rgba(78,255,160,.3)" stroke-width="1.3"/>
+      <text x="115" y="35" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4effa0" letter-spacing="1">DECIDABLE</text>
+      <text x="115" y="52" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">TM always halts</text>
+      <text x="115" y="70" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">accept or reject</text>
+      <text x="115" y="92" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4effa0">• Sorting</text>
+      <text x="115" y="106" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4effa0">• DFA emptiness</text>
+      <text x="115" y="120" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4effa0">• CFG membership</text>
+      <text x="115" y="134" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4effa0">• Primality test</text>
+
+      <rect x="230" y="15" width="215" height="130" rx="5" fill="rgba(245,166,35,.04)" stroke="rgba(245,166,35,.25)" stroke-width="1.3"/>
+      <text x="337" y="35" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623" letter-spacing="1">RECOGNIZABLE</text>
+      <text x="337" y="52" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">TM halts on accept,</text>
+      <text x="337" y="65" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">may loop on reject</text>
+      <text x="337" y="85" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#f5a623">• Accepts valid</text>
+      <text x="337" y="99" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#f5a623">  inputs correctly</text>
+      <text x="337" y="113" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#f5a623">• Halting Problem</text>
+      <text x="337" y="127" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#f5a623">  (recognizable</text>
+      <text x="337" y="140" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#f5a623">  but undecidable)</text>
+
+      <rect x="460" y="15" width="205" height="130" rx="5" fill="rgba(255,87,87,.05)" stroke="rgba(255,87,87,.3)" stroke-width="1.3"/>
+      <text x="562" y="35" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#ff5757" letter-spacing="1">UNCOMPUTABLE</text>
+      <text x="562" y="52" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">No TM can decide.</text>
+      <text x="562" y="65" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">Ever. Proven by</text>
+      <text x="562" y="78" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">diagonalisation.</text>
+      <text x="562" y="98" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#ff5757">• Halting Problem</text>
+      <text x="562" y="112" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#ff5757">• Post Corresp.</text>
+      <text x="562" y="126" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#ff5757">• Kolmogorov</text>
+      <text x="562" y="140" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#ff5757">  Complexity</text>
+    </svg>
+  </div>
+
+  </div>
+
+  <div class="card-stack">
+    <div class="card" style="--cl:#a78bfa">
+      <h4>TM Formal Definition</h4>
+      <p>A 7-tuple <strong style="color:#a78bfa">M = (Q, Σ, Γ, δ, q₀, q_acc, q_rej)</strong><br><br>
+      <span style="color:#d0b8ff">Γ</span> — tape alphabet (Σ ∪ {blank})<br>
+      <span style="color:#d0b8ff">δ: Q×Γ → Q×Γ×{L,R}</span><br><br>
+      Unlike PDA: head can move LEFT, tape is writable, no separate stack — the tape IS the memory.</p>
+    </div>
+    <div class="card" style="--cl:#ff5757">
+      <h4>The Halting Problem</h4>
+      <p>Does a given TM M halt on input w? Turing proved in 1936 this is <strong style="color:#ff5757">undecidable</strong> — no TM can solve it for all inputs. Proof by contradiction: assume H solves halting, construct D(M) = H(M,M) with inverted answer — paradox! This is the most fundamental limit of computation.</p>
+    </div>
+    <div class="card" style="--cl:#4effa0">
+      <h4>Church-Turing Thesis</h4>
+      <p>Any effectively computable function can be computed by a Turing machine. This is not a theorem — it's a thesis about the nature of computation. It implies that Python, C, LISP, lambda calculus, cellular automata — are all equally powerful (Turing-complete).</p>
+    </div>
+    <div class="card" style="--cl:#3dd6f5">
+      <h4>Variants — Same Power</h4>
+      <p>All of these are equivalent to a standard TM:<br>
+      • Multi-tape TM<br>
+      • Nondeterministic TM<br>
+      • TM with 2D infinite tape<br>
+      • RAM machine / modern CPU<br>
+      • Lambda calculus<br>
+      • Conway's Game of Life(!)</p>
+    </div>
+    <div class="card" style="--cl:#ffd080">
+      <h4>Complexity Classes</h4>
+      <p>TMs also model computational <em>difficulty</em>:<br>
+      <span style="color:#4effa0">P</span> — decidable in polynomial time<br>
+      <span style="color:#f5a623">NP</span> — verifiable in poly time<br>
+      <span style="color:#ff6b9d">NP-complete</span> — hardest in NP<br>
+      <span style="color:#ff5757">PSPACE, EXP</span> — harder still<br>
+      <strong style="color:#ffd080">P = NP?</strong> — the greatest open problem in CS.</p>
+    </div>
+  </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PANEL 6 — CHOMSKY HIERARCHY
+═══════════════════════════════════════ -->
+<div id="p-hierarchy" class="panel">
+<div class="wrap">
+
+  <div class="sec-intro">
+    <div class="tag">Noam Chomsky, 1956</div>
+    <h2>The Chomsky Hierarchy</h2>
+    <p>Noam Chomsky classified all formal grammars into four nested levels (Types 0–3), each strictly more expressive than the previous. The hierarchy elegantly unifies grammar theory, automaton theory, and computational complexity.</p>
+  </div>
+
+  <!-- Big beautiful Chomsky diagram -->
+  <div class="dbox" style="margin-bottom:24px">
+    <div class="dbox-title"><div class="pip"></div>CHOMSKY HIERARCHY — NESTED LANGUAGE CLASSES</div>
+    <svg viewBox="0 0 860 500" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="chg"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="chg2"><feGaussianBlur stdDeviation="14" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <radialGradient id="bg0" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#1a0830" stop-opacity=".6"/>
+          <stop offset="100%" stop-color="#0a0510" stop-opacity=".0"/>
+        </radialGradient>
+        <radialGradient id="bg1" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#0d2020" stop-opacity=".5"/>
+          <stop offset="100%" stop-color="#0a0510" stop-opacity=".0"/>
+        </radialGradient>
+        <radialGradient id="bg2" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#0e1a08" stop-opacity=".5"/>
+          <stop offset="100%" stop-color="#0a0510" stop-opacity=".0"/>
+        </radialGradient>
+        <radialGradient id="bg3" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#1a1208" stop-opacity=".5"/>
+          <stop offset="100%" stop-color="#0a0510" stop-opacity=".0"/>
+        </radialGradient>
+      </defs>
+      <rect width="860" height="500" fill="#090b10"/>
+
+      <!-- Type 0 — largest ellipse -->
+      <ellipse cx="400" cy="265" rx="390" ry="230" fill="url(#bg0)" stroke="#a78bfa" stroke-width="2" filter="url(#chg)"/>
+      <text x="400" y="48" text-anchor="middle" font-family="Playfair Display" font-size="17" font-style="italic" fill="#a78bfa">Type 0 — Recursively Enumerable</text>
+      <text x="400" y="67" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#6b5a80">Unrestricted Grammars · Turing Machines · Everything computable</text>
+      <!-- Undecidable region label -->
+      <text x="740" y="300" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#a78bfa" opacity=".6">Halting</text>
+      <text x="740" y="313" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#a78bfa" opacity=".6">Problem</text>
+      <text x="740" y="326" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#a78bfa" opacity=".6">lives here</text>
+      <text x="60" y="360" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#a78bfa" opacity=".6">α→β</text>
+      <text x="60" y="373" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4a5270" opacity=".6">(any rule)</text>
+
+      <!-- Type 1 -->
+      <ellipse cx="390" cy="285" rx="300" ry="175" fill="url(#bg1)" stroke="#4effa0" stroke-width="2"/>
+      <text x="390" y="135" text-anchor="middle" font-family="Playfair Display" font-size="14" font-style="italic" fill="#4effa0">Type 1 — Context-Sensitive</text>
+      <text x="390" y="152" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#336644">Lin. Bounded Automata · |α| ≤ |β| in rules · aⁿbⁿcⁿ</text>
+      <text x="640" y="340" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4effa0" opacity=".7">αAβ→αγβ</text>
+      <text x="640" y="353" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270" opacity=".7">(context-sensitive)</text>
+      <text x="140" y="420" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4effa0" opacity=".7">aⁿbⁿcⁿ</text>
+
+      <!-- Type 2 -->
+      <ellipse cx="385" cy="310" rx="210" ry="120" fill="url(#bg2)" stroke="#3dd6f5" stroke-width="2"/>
+      <text x="385" y="215" text-anchor="middle" font-family="Playfair Display" font-size="13" font-style="italic" fill="#3dd6f5">Type 2 — Context-Free</text>
+      <text x="385" y="230" text-anchor="middle" font-family="IBM Plex Mono" font-size="8.5" fill="#224455">Push-down Automata · A→α · Programming language syntax</text>
+      <text x="560" y="365" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#3dd6f5" opacity=".7">A→α</text>
+      <text x="560" y="378" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270" opacity=".7">(context-free)</text>
+      <text x="210" y="375" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#3dd6f5" opacity=".7">aⁿbⁿ</text>
+      <text x="210" y="388" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#3dd6f5" opacity=".7">palindromes</text>
+
+      <!-- Type 3 — innermost -->
+      <ellipse cx="380" cy="330" rx="120" ry="70" fill="rgba(245,166,35,.07)" stroke="#f5a623" stroke-width="2.5" filter="url(#chg)"/>
+      <text x="380" y="308" text-anchor="middle" font-family="Playfair Display" font-size="13" font-style="italic" fill="#f5a623">Type 3 — Regular</text>
+      <text x="380" y="323" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#665520">Finite Automata · Regex</text>
+      <text x="380" y="337" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#665520">A→aB · A→a</text>
+      <text x="380" y="354" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#665520">a*b+ · (ab)*</text>
+
+      <!-- Strict subset arrows on right side -->
+      <text x="808" y="200" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">Regular ⊂</text>
+      <text x="808" y="215" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">CFL ⊂</text>
+      <text x="808" y="230" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">CSL ⊂</text>
+      <text x="808" y="245" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">RE</text>
+      <text x="808" y="260" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4a5270">(strict)</text>
+
+      <!-- Example languages floating in each ring -->
+      <!-- In RE but not CSL zone -->
+      <rect x="20" y="230" width="115" height="52" rx="4" fill="rgba(167,139,250,.07)" stroke="rgba(167,139,250,.25)" stroke-width="1"/>
+      <text x="77" y="248" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#a78bfa">Halting Problem</text>
+      <text x="77" y="262" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">RE \ decidable</text>
+      <text x="77" y="275" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">TM accepts it</text>
+
+      <!-- In CSL but not CFL -->
+      <rect x="565" y="180" width="130" height="42" rx="4" fill="rgba(78,255,160,.05)" stroke="rgba(78,255,160,.2)" stroke-width="1"/>
+      <text x="630" y="198" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4effa0">aⁿbⁿcⁿ  n≥1</text>
+      <text x="630" y="213" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">CSL, not CFL</text>
+
+      <!-- In CFL but not Reg -->
+      <rect x="565" y="260" width="130" height="42" rx="4" fill="rgba(61,214,245,.05)" stroke="rgba(61,214,245,.2)" stroke-width="1"/>
+      <text x="630" y="278" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#3dd6f5">aⁿbⁿ  n≥0</text>
+      <text x="630" y="293" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">CFL, not Regular</text>
+
+      <!-- Bottom caption -->
+      <text x="400" y="490" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4a5270" letter-spacing="2">EVERY INNER CLASS IS A PROPER SUBSET OF THE OUTER — PROVEN WITH PUMPING LEMMAS</text>
+    </svg>
+  </div>
+
+  <!-- Comparison table -->
+  <div class="dbox">
+    <div class="dbox-title"><div class="pip"></div>FULL COMPARISON TABLE</div>
+    <svg viewBox="0 0 860 230" xmlns="http://www.w3.org/2000/svg">
+      <rect width="860" height="230" fill="#0c0e14"/>
+
+      <!-- Header row -->
+      <rect x="0" y="0" width="860" height="36" fill="rgba(245,166,35,.06)"/>
+      <text x="60" y="23" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623" font-weight="700" letter-spacing="1">TYPE</text>
+      <text x="185" y="23" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623" font-weight="700" letter-spacing="1">GRAMMAR</text>
+      <text x="330" y="23" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623" font-weight="700" letter-spacing="1">AUTOMATON</text>
+      <text x="490" y="23" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623" font-weight="700" letter-spacing="1">LANGUAGE CLASS</text>
+      <text x="640" y="23" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623" font-weight="700" letter-spacing="1">RULE FORM</text>
+      <text x="790" y="23" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#f5a623" font-weight="700" letter-spacing="1">EXAMPLE</text>
+
+      <!-- Column lines -->
+      <g stroke="#1e2530" stroke-width="1">
+        <line x1="118" y1="0" x2="118" y2="230"/>
+        <line x1="252" y1="0" x2="252" y2="230"/>
+        <line x1="408" y1="0" x2="408" y2="230"/>
+        <line x1="572" y1="0" x2="572" y2="230"/>
+        <line x1="714" y1="0" x2="714" y2="230"/>
+      </g>
+
+      <!-- Row 1: Type 3 -->
+      <rect x="0" y="36" width="860" height="48" fill="rgba(245,166,35,.03)"/>
+      <text x="60" y="56" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="700" fill="#f5a623">3</text>
+      <text x="60" y="70" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#665520">Regular</text>
+      <text x="185" y="56" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#ffd080">Regular Grammar</text>
+      <text x="185" y="70" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">(right-linear)</text>
+      <text x="330" y="56" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#ffd080">DFA / NFA</text>
+      <text x="330" y="70" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">ε-NFA · Regex</text>
+      <text x="490" y="56" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#ffd080">Regular Languages</text>
+      <text x="490" y="70" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">Closed under ∪,∩,·,*,¬</text>
+      <text x="640" y="56" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#ffd080">A → aB | a</text>
+      <text x="790" y="60" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#ffd080">(ab)*  ·  a*b+</text>
+
+      <line x1="0" y1="84" x2="860" y2="84" stroke="#1e2530" stroke-width="1"/>
+
+      <!-- Row 2: Type 2 -->
+      <rect x="0" y="84" width="860" height="48" fill="rgba(61,214,245,.02)"/>
+      <text x="60" y="104" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="700" fill="#3dd6f5">2</text>
+      <text x="60" y="118" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#224455">Context-Free</text>
+      <text x="185" y="104" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#3dd6f5">Context-Free</text>
+      <text x="185" y="118" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">Grammar (CFG)</text>
+      <text x="330" y="104" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#3dd6f5">Pushdown Automaton</text>
+      <text x="330" y="118" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">(PDA) nondeterministic</text>
+      <text x="490" y="104" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#3dd6f5">Context-Free Languages</text>
+      <text x="490" y="118" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">Closed under ∪,·,* not ∩,¬</text>
+      <text x="640" y="104" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#3dd6f5">A → α</text>
+      <text x="640" y="118" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">(single nonterminal)</text>
+      <text x="790" y="108" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#3dd6f5">aⁿbⁿ · S→aSb</text>
+
+      <line x1="0" y1="132" x2="860" y2="132" stroke="#1e2530" stroke-width="1"/>
+
+      <!-- Row 3: Type 1 -->
+      <rect x="0" y="132" width="860" height="48" fill="rgba(78,255,160,.02)"/>
+      <text x="60" y="152" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="700" fill="#4effa0">1</text>
+      <text x="60" y="166" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#224433">Context-Sensitive</text>
+      <text x="185" y="152" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4effa0">Context-Sensitive</text>
+      <text x="185" y="166" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">Grammar (CSG)</text>
+      <text x="330" y="152" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4effa0">Lin. Bounded Automaton</text>
+      <text x="330" y="166" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">(LBA) nondeterministic</text>
+      <text x="490" y="152" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4effa0">Context-Sensitive Languages</text>
+      <text x="490" y="166" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">Closed under ∪,∩,·,* not ¬(open)</text>
+      <text x="640" y="152" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#4effa0">αAβ → αγβ</text>
+      <text x="640" y="166" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">|αγβ| ≥ |αAβ|</text>
+      <text x="790" y="156" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#4effa0">aⁿbⁿcⁿ</text>
+
+      <line x1="0" y1="180" x2="860" y2="180" stroke="#1e2530" stroke-width="1"/>
+
+      <!-- Row 4: Type 0 -->
+      <rect x="0" y="180" width="860" height="48" fill="rgba(167,139,250,.02)"/>
+      <text x="60" y="200" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" font-weight="700" fill="#a78bfa">0</text>
+      <text x="60" y="214" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#442266">Unrestricted</text>
+      <text x="185" y="200" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#a78bfa">Unrestricted / Phrase</text>
+      <text x="185" y="214" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">Structure Grammar</text>
+      <text x="330" y="200" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#a78bfa">Turing Machine</text>
+      <text x="330" y="214" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">(deterministic or non-det)</text>
+      <text x="490" y="200" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#a78bfa">Recursively Enumerable</text>
+      <text x="490" y="214" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">Not closed under complement</text>
+      <text x="640" y="200" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="#a78bfa">α → β</text>
+      <text x="640" y="214" text-anchor="middle" font-family="IBM Plex Mono" font-size="8" fill="#4a5270">(any strings)</text>
+      <text x="790" y="204" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="#a78bfa">Halting problem</text>
+    </svg>
+  </div>
+
+</div>
+</div>
+
+<script>
+// ── TAB SWITCHING ──
+function show(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('p-' + name).classList.add('on');
+  btn.classList.add('on');
+}
+
+// ── DFA SIMULATOR ──
+// DFA: accepts strings over {a,b} ending in "ab"
+// States: 0=q0, 1=q1(saw a), 2=q2(accept)
+const dfaTrans = {
+  '0a': 1, '0b': 0,
+  '1a': 1, '1b': 2,
+  '2a': 1, '2b': 0
+};
+const dfaAccept = new Set([2]);
+
+function runDFA() {
+  const inp = document.getElementById('dfa-inp').value.toLowerCase().replace(/[^ab]/g,'');
+  const tape = document.getElementById('dfa-tape');
+  const result = document.getElementById('dfa-result');
+  tape.innerHTML = '';
+  if (!inp) { result.className=''; result.textContent='type a string above'; return; }
+
+  let state = 0;
+  let accepted = false;
+  const symbols = inp.split('');
+
+  symbols.forEach((ch, i) => {
+    const prev = state;
+    state = dfaTrans[state + ch] !== undefined ? dfaTrans[state + ch] : -1;
+    const div = document.createElement('div');
+    div.className = 'sym';
+    div.textContent = ch;
+    div.style.animationDelay = (i * 0.06) + 's';
+    tape.appendChild(div);
+  });
+
+  accepted = dfaAccept.has(state);
+  // Color all symbols
+  const syms = tape.querySelectorAll('.sym');
+  syms.forEach((s, i) => {
+    setTimeout(() => {
+      s.classList.add(accepted && i === symbols.length - 1 ? 'accepted' : (accepted ? 'active' : 'rejected'));
+    }, i * 60 + 50);
+  });
+  setTimeout(() => {
+    result.className = accepted ? 'acc' : 'rej';
+    result.textContent = accepted
+      ? `✓ ACCEPTED — state q${state} ∈ F (string ends with "ab")`
+      : `✗ REJECTED — state q${state} ∉ F (string does not end with "ab")`;
+  }, symbols.length * 60 + 100);
+}
+
+// ── TURING MACHINE SIMULATOR ──
+// Binary incrementer: adds 1 to binary number
+// Strategy: move to rightmost bit, carry ripple left
+let tmTape = [], tmHead = 0, tmState = 'q0', tmSteps = 0;
+let tmLog = [];
+
+// Initial tape: 1 0 1 1 (= 11 decimal)
+const tmInitial = ['1','0','1','1'];
+
+const tmDelta = {
+  // State q0: scan right to end
+  'q0_0': { write:'0', move:'R', next:'q0' },
+  'q0_1': { write:'1', move:'R', next:'q0' },
+  'q0__': { write:'_', move:'L', next:'q1' },  // found end, go left
+  // State q1: add 1 (carry)
+  'q1_0': { write:'1', move:'L', next:'qh' },  // 0+1=1, done
+  'q1_1': { write:'0', move:'L', next:'q1' },  // 1+1=0, carry
+  'q1__': { write:'1', move:'R', next:'qh' },  // overflow (all 1s)
+};
+
+function tmReset() {
+  tmTape = [...tmInitial, '_', '_', '_', '_'];
+  tmHead = 0;
+  tmState = 'q0';
+  tmSteps = 0;
+  tmLog = [];
+  renderTM();
+}
+
+function renderTM() {
+  const cells = document.getElementById('tm-cells');
+  const marker = document.getElementById('tm-marker');
+  const stateEl = document.getElementById('tm-state');
+  const logEl = document.getElementById('tm-log');
+
+  cells.innerHTML = '';
+  tmTape.forEach((sym, i) => {
+    const d = document.createElement('div');
+    d.className = 'tm-cell' + (i === tmHead ? ' head' : '');
+    d.textContent = sym === '_' ? '□' : sym;
+    cells.appendChild(d);
+  });
+  marker.innerHTML = `▲ HEAD at position <span id="tm-pos">${tmHead}</span>`;
+  stateEl.textContent = `State: ${tmState}`;
+  logEl.innerHTML = tmLog.slice(-8).map(l => `<div>${l}</div>`).join('');
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function tmStep() {
+  if (tmState === 'qh' || tmState === 'qacc' || tmState === 'qrej') {
+    tmLog.push('⟹ Machine halted.');
+    renderTM();
+    return;
+  }
+  const sym = tmTape[tmHead] || '_';
+  const key = tmState + '_' + sym;
+  const rule = tmDelta[key];
+  if (!rule) {
+    tmState = 'qrej';
+    tmLog.push(`✗ No rule for (${tmState}, ${sym}) — REJECT`);
+    renderTM();
+    return;
+  }
+  const oldState = tmState;
+  const oldSym = sym;
+  tmTape[tmHead] = rule.write;
+  const dir = rule.move;
+  tmState = rule.next;
+  tmLog.push(`(${oldState}, ${oldSym==='_'?'□':oldSym}) → write ${rule.write==='_'?'□':rule.write}, move ${dir}, → ${tmState}`);
+  if (dir === 'R') tmHead++;
+  else if (dir === 'L') tmHead = Math.max(0, tmHead - 1);
+  if (tmHead >= tmTape.length - 2) tmTape.push('_','_');
+  tmSteps++;
+  renderTM();
+  if (tmState === 'qh') {
+    const val = tmTape.filter(c=>c!='_').join('');
+    tmLog.push(`✓ HALT — result: ${val} (= ${parseInt(val,2)} in decimal)`);
+    renderTM();
+  }
+}
+
+function tmRun() {
+  let limit = 50;
+  const go = () => {
+    if ((tmState === 'qh' || tmState === 'qrej') || limit-- <= 0) return;
+    tmStep();
+    setTimeout(go, 160);
+  };
+  go();
+}
+
+// Init
+tmReset();
+document.getElementById('dfa-inp').addEventListener('input', runDFA);
+</script>
+</body>
+</html>
